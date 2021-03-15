@@ -30,15 +30,15 @@ public class Deck {
         }
     }
     
-    public Card draw() throws Exception {
+    public PlayingCard draw() throws Exception {
         
     }
     
-    public Card[] draw(int n) throws Exception {
+    public PlayingCard[] draw(int n) throws Exception {
         
     }
     
-    public Card getCard(int index) {
+    public PlayingCard getCard(int index) {
         
     }
     
@@ -46,7 +46,7 @@ public class Deck {
         
     }
     
-    private Card[] shuffle(Card[] deck) {
+    private PlayingCard[] shuffle(PlayingCard[] deck) {
         
     }
 }
