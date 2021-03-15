@@ -31,7 +31,11 @@ public class Deck {
     }
     
     public PlayingCard draw() throws Exception {
-        
+        if(card != DECK_SIZE){
+             return deck[count++];
+        } else {
+             throw new Exception("ran out of cards :/");
+        }
     }
     
     public PlayingCard[] draw(int n) throws Exception {
@@ -39,7 +43,7 @@ public class Deck {
     }
     
     public PlayingCard getCard(int index) {
-        
+        return deck[index];
     }
     
     public void shuffle() {
