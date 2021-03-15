@@ -29,4 +29,24 @@ public class Deck {
             this.deck[i] = original.deck[i];
         }
     }
+    
+    public Card draw() throws Exception {
+        
+    }
+    
+    public Card[] draw(int n) throws Exception {
+        
+    }
+    
+    public Card getCard(int index) {
+        
+    }
+    
+    public void shuffle() {
+        
+    }
+    
+    private Card[] shuffle(Card[] deck) {
+        
+    }
 }
