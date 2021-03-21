@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Random;
 
 public class Deck {
     private PlayingCard[] deck;
@@ -9,7 +10,8 @@ public class Deck {
 
     //new deck (unshuffled)
     public Deck(){
-        deck = new PlayingCard[DECK_SIZE];
+        this.deck = new PlayingCard[DECK_SIZE];
+        this.card = 0;
         int count = 0;
         for (CardSuit suit :CardSuit.values()){
             deck[count] = new PlayingCard(suit,1);
@@ -50,8 +52,8 @@ public class Deck {
         }
     }
     
-    public PlayingCard getCard(int index) {
-        return deck[index];
+    public PlayingCard getCard(int index, Deck original) {
+        return original[index];
     }
     
     public void shuffle() {
@@ -63,5 +65,14 @@ public class Deck {
         ArrayList<PlayingCard> CardList = new ArrayList<PlayingCard>(Arrays.asList(deck));
         Collections.shuffle(CardList);
         return (PlayingCard[]) CardList.toArray(new PlayingCard[DECK_SIZE]);
+    }
+
+    public PlayingCard cutDeck(Deck original){
+        Deck deckForCut = Deck(original);
+        Random rand = new Random();
+        n = deckForCut.length();
+        int randInt = rand.newInt(n-1);
+        deckForCut.draw(randInt);
+        return getCard(deckForCut.card, deckForCut);
     }
 }

@@ -33,8 +33,12 @@ public class Hand {
         }
     }
 
-    public Hand getHand(){
+    public Hand peek(){ //peek at hand
         return hand;
+    }
+
+    public PlayingCard peek(int card){ //peek at hand
+        return hand[card];
     }
 
     public void reset(){
