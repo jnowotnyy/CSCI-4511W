@@ -23,22 +23,22 @@ public class Deck {
 
     //make a copy of this deck (could be useful so why not)
     public Deck(Deck original){
-        this.card = original.card;
-        this.deck = new PlayingCard[DECK_SIZE];
-        for(int i = 0; i < deck.length; i++){
-            this.deck[i] = original.deck[i];
+        this.card = 0;
+        this.deck = new PlayingCard[DECK_SIZE - original.size];
+        for(int i = 0; i < this.deck.length; i++){
+            this.deck[i] = original.deck[i+original.card];
         }
     }
     
-    public PlayingCard draw() throws Exception {
+    public PlayingCard draw(){
         if(card < DECK_SIZE){
              return deck[count++];
         } else {
-             throw new Exception("ran out of cards :/");
+             throw new IllegalStateException("ran out of cards :(");
         }
     }
     
-    public PlayingCard[] draw(int n) throws Exception {
+    public PlayingCard[] draw(int n){
         if(card + n < DECK_SIZE){
             PlayingCard[] cards = new PlayingCard[n];
             for(i = 0; i<n; i++){
@@ -46,7 +46,7 @@ public class Deck {
             }
             return cards;
         } else {
-            throw new Exception("ran out of cards :/");
+            throw new IllegalStateException("ran out of cards :/");
         }
     }
     
