@@ -18,7 +18,7 @@ public class Hand {
         }
     }
 
-    public void addNToHand(PlayingCard card, int n){
+    public void addNToHand(PlayingCard[] cards, int n){
         for(int i = 0; i < n; i++){
             addToHand(cards[i]);
         }
