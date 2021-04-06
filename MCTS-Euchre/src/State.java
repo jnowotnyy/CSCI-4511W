@@ -1,10 +1,15 @@
 public class State{
 	private CardSuit trumpSuit;
+    private CardSuit sameColorSuit;
 	private Deck deck;
-	private Gamestates gamestate;
+	private Gamestate gamestate;
+    private int numCardsPlayed;
+    private int dealer = 0;
+    private int defender = 1;
 	private int playerToMove;
 	private int dealer;
 	private Player[] players;
+    private PlayingCard[] played;
 	
 	//play information
 	private int trickNum;
@@ -17,12 +22,16 @@ public class State{
         players = new Player[2];
 		players[0] = new Player();
 		players[1] = new Player();
+
+        played = new PlayingCard[2];
+        played[0] = new PlayingCard();
+        played[1] = new PlayingCard();
 		
-		dealer = 0;
 		playerToMove = -1; //represents game to move (deal)
-		stage = Gamestates.DEAL;
+		stage = Gamestate.DEAL;
 		deck = new Deck();
 		handOver = true;
+        numCardsPlayed = 0;
 		
 		hand.reset();
 		
@@ -75,6 +84,65 @@ public class State{
 		return players[player].getPlayed();
 	}
 
+    public void getSameColorSuit(){
+        if(trumpSuit == CardSuit.Spades){
+            sameColorSuit == CardSuit.Clubs;
+        } else if(trumpSuit == CardSuit.Clubs){
+            sameColorSuit == CardSuit.Spades;
+        } else if(trumpSuit == CardSuit.Hearts){
+            sameColorSuit == CardSuit.Diamonds;
+        } else{
+            sameColorSuit = CardSuit.Hearts;
+        }
+    }
+
+    public int findTrickWinner(PlayingCard dealer, PlayingCard defender){
+        getSameColorSuit();
+        if(dealer.getCardSuit() == trumpSuit && dealer.getCardNum() == 11){
+            return dealer;
+        }
+        else if(defender.getCardSuit() == trumpSuit && defender.getCardNum() == 11){
+            return defender;
+        } 
+        else if(dealer.getCardSuit() == sameColorSuit && dealer.getCardNum() == 11){
+            return dealer;
+        }
+        else if(defender.getCardSuit() == sameColorSuit && defender.getCardNum() == 11){
+            return defender;
+        }
+        else if(dealer.getCardSuit() == trumpSuit && defender.getCardSuit() == trumpSuit){
+            if(dealer.getCardNum() == 1){
+                return dealer;
+            } else if(defender.getCardNum == 1){
+                return defender;
+            }
+            int retval = dealer.compareTo(defender);
+            if(retval == 1){
+                return dealer;
+            } else if (retval == -1){
+                return defender;
+            } else {
+                throw new Exception("Cards are Same Value????")
+            }
+        } 
+        else if(dealer.getCardSuit() == trumpSuit){
+            return dealer;
+        }
+        else if(defender.getCardSuit() trumpSuit){
+            return defender;
+        }
+        else{
+            int retval = dealer.compareTo(defender);
+            if(retval == 1){
+                return dealer;
+            } else if (retval == -1){
+                return defender;
+            } else {
+                throw new Exception("Cards are Same Value????")
+            }
+        }
+    }
+
     public int[] getActions(){
 		if (getWinner() != -1) {
 			throw new IllegalStateException("Game Over");
@@ -98,7 +166,7 @@ public class State{
         return actions;
     }
 
-    public State doAction(int action){
+    public State doAction(PlayingCard action){
         if (getWinner() != -1) {
 			throw new IllegalStateException("Game Over");
 		}	
@@ -106,15 +174,49 @@ public class State{
         switch (stage) {
 		case DEAL:
             deck.shuffle();
-            players[0].initHand(deck.draw(5));
-            players[1].initHand(deck.draw(5));
-            reportUpdate(Gamestates.DEAL, -1 ,0);
+            players[0].initHand(deck.draw(3));
+            players[1].initHand(deck.draw(2));
+            players[0].addNToHand(2);
+            players[0].addNToHand(3);
+            reportUpdate(Gamestate.DEAL, -1 ,0);
             playerToMove = (dealer + 1) % 2;
-            gamestate = Gamestates.CUT;
+            stage = Gamestate.CUT;
             handOver = false;
+            trickNum = 1;
             break;
         case CUT:
+            if (action != 0) {
+				throw new Exception("Illegal action");
+			}
+			PlayingCard cut = deck.draw();
+            trumpSuit = cut.getCardSuit();
+			reportUpdate(Gamestate.CUT, -1, 0);
+            playerToMove = (dealer + 1) % 2;
+			stage = Gamestate.PLAY;
+			break;	
         case PLAY:
+            if(playerToMove == dealer){
+                trickover = false;
+                played[dealer] = players[dealer].play(action);
+                reportUpdate(Gamestate.Play, dealer, 0);
+            } else if(playerToMove == defender){
+                played[defender] = players[defender].play(action);
+                int trickwinner = findTrickWinner(played[dealer], played[defender]);
+                if(trickwinner = dealer){
+                    players[dealer].winTrick();
+                } else if (trickwinner = defender){
+                    players[defender].winTrick();
+                }
+                trickNum++;
+            }
+            if(trickNum == 5){
+                
+            }
+            if(trickover || handOver){
+                stage = Gamestate.DEAL;
+            }
+            dealer = (dealer + 1) % 2;
+            defender = (defender + 1) % 2; 
         }
     }
 
@@ -122,7 +224,7 @@ public class State{
 		toUpdate.add(update);
 	}
 
-    private void reportUpdate(Gamestates type, int player, int points) {
+    private void reportUpdate(Event type, int player, int points) {
 		for (EuchreUpdateable updateable : toUpdate) {
 			updateable.receiveUpdate(type, player, points);
 		}
@@ -131,13 +233,14 @@ public class State{
     private class Player(){
         private Hand hand;
         private boolean[] played;
-        private int score;
-        private int trickswon;
+        private int gameScore;
+        private int trickScore;
         int cardsToPlay;
 
         //constructor
         public Player(){
-            this.score = 0;
+            this.gameScore = 0;
+            this.trickScore = 0;
         }
         
         //initialize hand
@@ -145,7 +248,6 @@ public class State{
             this.hand = hand;
             played = new boolean[5];
             cardsToPlay = 5;
-            trickswon = 0;
         }
 
         //play a card
@@ -160,7 +262,7 @@ public class State{
         public int[] getPlayableCardIndexes(int trickNum){
             int[] playable = new int[cardsToPlay];
             int cnt = 0;
-            for(int i = 0; i < 5; i++){
+            for(int i = 0; i < hand.size; i++){
                 if(hand.peek(i) != NULL){
                     playable[cnt++] = hand.peek(i);
                 }
@@ -172,19 +274,26 @@ public class State{
         }
 
         public int getScore(){
-            return score;
+            return gameScore;
         }
 
         public int getTricksWon(){
-            return trickswon;
+            return trickScore;
         }
 
         public void addToScore(int points){
-            score+= points;
+            gameScore+= points;
         }
 
-        public void newTrickWon(){
-            trickswon++;
+        public void winTrick(){
+            trickScore++;
+        }
+
+        public void resetHand(){
+            trickScore = 0;
+            for(int i = 0; i<5; i++){
+                hand[i] = null;
+            }
         }
 
         public Hand getHand(){

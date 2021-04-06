@@ -24,7 +24,7 @@ public class Hand {
         }
     }
 
-    public void removeFromHand(PlayingCard card){
+    public void play(PlayingCard card){
         for(int i = 0; i < HAND_SIZE; i++){
             if(hand[i] == card){
                 hand[i] = NULL;

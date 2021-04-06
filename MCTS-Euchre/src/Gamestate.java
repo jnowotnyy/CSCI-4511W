@@ -1,4 +1,4 @@
-public enum Gamestates {
+public enum Gamestate {
   DEAL,
   CUT, //optional
   PLAY
