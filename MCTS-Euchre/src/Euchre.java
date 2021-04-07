@@ -4,6 +4,7 @@ public class Euchre implements EuchreUpdateable{
         this.state = gameState;
         gameState.registerForUpdates(this);
     }
+    public static void main(String[] args) throws Exception {
 
-    
+    }
 }
