@@ -178,42 +178,70 @@ public class State{
             players[1].initHand(deck.draw(2));
             players[0].addNToHand(2);
             players[0].addNToHand(3);
-            reportUpdate(Gamestate.DEAL, -1 ,0);
+            reportUpdate(DEAL, -1 ,0);
             playerToMove = (dealer + 1) % 2;
-            stage = Gamestate.CUT;
+            gamestate = CUT;
             handOver = false;
             trickNum = 1;
             break;
         case CUT:
-            if (action != 0) {
+            if (action != NULL) {
 				throw new Exception("Illegal action");
 			}
 			PlayingCard cut = deck.draw();
             trumpSuit = cut.getCardSuit();
-			reportUpdate(Gamestate.CUT, -1, 0);
+			reportUpdate(CUT, -1, 0);
             playerToMove = (dealer + 1) % 2;
-			stage = Gamestate.PLAY;
+			gamestate = PLAY;
 			break;	
         case PLAY:
             if(playerToMove == dealer){
                 trickover = false;
                 played[dealer] = players[dealer].play(action);
-                reportUpdate(Gamestate.Play, dealer, 0);
+                reportUpdate(PLAY, dealer, 0);
             } else if(playerToMove == defender){
                 played[defender] = players[defender].play(action);
+                reportUpdate(PLAY, defender, 0);
                 int trickwinner = findTrickWinner(played[dealer], played[defender]);
                 if(trickwinner = dealer){
                     players[dealer].winTrick();
                 } else if (trickwinner = defender){
                     players[defender].winTrick();
                 }
+                trickover=true;
                 trickNum++;
             }
-            if(trickNum == 5){
-                
+            if(trickNum == 5 && trickover){
+                handOver=true;
+                if(players[dealer].getTricksWon() == 3 && players[dealer].getTricksWon() == 4){
+                    players[dealer].addToScore(1);
+                    reportUpdate(DEALERWIN, dealer, 1);
+                }
+                else if(players[defender].getTricksWon() == 3 && players[defender].getTricksWon() == 4){
+                    players[defender].addToScore(2);
+                    reportUpdate(EUCHERED, defender, 2);
+                }
+                else if(players[dealer].getTricksWon() == 5){
+                    players[dealer].addToScore(2);
+                    reportUpdate(DEALERSWEEP, dealer, 2);
+                }
+                else if(players[dealer].getTricksWon() == 5){
+                    players[dealer].addToScore(2);
+                    reportUpdate(DEALERSWEEP, dealer, 2);
+                }
+                else if(players[dealer].getTricksWon() == 5){
+                    players[dealer].addToScore(4);
+                    reportUpdate(DEFENDERSWEEP, defender, 4);
+                }
             }
-            if(trickover || handOver){
-                stage = Gamestate.DEAL;
+            if(trickover){
+                played[0] = NULL;
+                played[1] = NULL;
+            }
+            if(handOver){
+                players[0].resetHand();
+                players[1].resetHand();
+                gamestate = DEAL;
             }
             dealer = (dealer + 1) % 2;
             defender = (defender + 1) % 2; 
