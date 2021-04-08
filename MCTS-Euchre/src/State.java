@@ -8,7 +8,7 @@ public class State{
     private int defender = 1;
 	private int playerToMove;
 	private int dealer;
-	private Player[] players;
+	private EuchrePlayer[] players;
     private PlayingCard[] played;
 	
 	//play information
@@ -19,9 +19,9 @@ public class State{
 	private Collection<EuchreUpdateable> toUpdate;
 
     public class State(){
-        players = new Player[2];
-		players[0] = new Player();
-		players[1] = new Player();
+        players = new EuchrePlayer[2];
+		players[0] = new EuchrePlayer();
+		players[1] = new EuchrePlayer();
 
         played = new PlayingCard[2];
         played[0] = new PlayingCard();
